@@ -2,7 +2,10 @@ module github.com/burgerdev/regovis
 
 go 1.22.5
 
-require github.com/open-policy-agent/opa v0.66.0
+require (
+	github.com/emicklei/dot v1.6.2
+	github.com/open-policy-agent/opa v0.66.0
+)
 
 require (
 	github.com/OneOfOne/xxhash v1.2.8 // indirect

@@ -169,20 +169,54 @@ func (t *CallTree) Walk(f func(*CallTree)) {
 func getNestedRules(body ast.Body) []RuleKey {
 	var out []RuleKey
 	for _, expr := range body {
-		if expr.IsEvery() {
+		switch {
+		case expr.IsEvery():
 			return getNestedRules(expr.Terms.(*ast.Every).Body)
-		}
-		if !expr.IsCall() || expr.IsAssignment() || expr.IsEquality() {
-			continue
+		case expr.IsAssignment() || expr.IsEquality():
+			terms := expr.Terms.([]*ast.Term)
+			for _, term := range terms {
+				rules := getNestedRulesTerm(term)
+				out = append(out, rules...)
+			}
+		case expr.IsCall():
+			terms := expr.Terms.([]*ast.Term)
+			ref := terms[0].Value.(ast.Ref)
+			k := RuleKey{
+				Name:  ref[0].Value.String(),
+				Arity: len(terms) - 1, // ... assuming all other terms in this expr are call arguments.
+			}
+			out = append(out, k)
+		default:
+			if term, ok := expr.Terms.(*ast.Term); ok {
+				rules := getNestedRulesTerm(term)
+				out = append(out, rules...)
+			} else if some, ok := expr.Terms.(*ast.SomeDecl); ok {
+				for _, term := range some.Symbols {
+					rules := getNestedRulesTerm(term)
+					out = append(out, rules...)
+				}
+			} else {
+				log.Printf("WARNING: ignoring  with Terms == %T", expr.Terms)
+			}
 		}
 
-		terms := expr.Terms.([]*ast.Term)
-		ref := terms[0].Value.(ast.Ref)
-		k := RuleKey{
-			Name:  ref[0].Value.String(),
-			Arity: len(terms) - 1,
-		}
-		out = append(out, k)
 	}
 	return out
+}
+
+func getNestedRulesTerm(term *ast.Term) []RuleKey {
+	if call, ok := term.Value.(ast.Call); ok {
+		ref := call[0].Value.(ast.Ref)
+		return []RuleKey{{
+			Name:  ref[0].Value.String(),
+			Arity: len(call) - 1,
+		}}
+	}
+	if termVar, ok := term.Value.(ast.Var); ok {
+		return []RuleKey{{
+			Name:  termVar.String(),
+			Arity: 0,
+		}}
+	}
+	return nil
 }

@@ -56,10 +56,6 @@ func main() {
 	ruleStore := make(RuleStore)
 
 	for _, rule := range module.Rules {
-		switch rule.Head.Value.Value.(type) {
-		case ast.Object:
-			continue
-		}
 		key := RuleKey{Name: rule.Head.Name.String(), Arity: len(rule.Head.Args)}
 		ruleStore[key] = append(ruleStore[key], rule)
 	}

@@ -35,11 +35,13 @@ func main() {
 	var depth = flag.Int("depth", -1, "maximum depth of call stack (less than 0 means infinity)")
 	var jsonOutput = flag.Bool("json", false, "JSON output")
 	var graphvizOutput = flag.Bool("dot", false, "Graphviz output")
+	var help = flag.Bool("h", false, "show help")
+	flag.BoolVar(help, "help", false, "show help")
 
 	flag.Parse()
 	file := flag.Arg(0)
-	if file == "" {
-		log.Fatal("Usage: regovis FILE")
+	if file == "" || *help {
+		log.Fatal("Usage: regovis [-dot|-json] [-depth INT] [-query FUNCTION_NAME] FILE")
 	}
 
 	policy, err := os.ReadFile(file)

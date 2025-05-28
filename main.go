@@ -32,11 +32,11 @@ func main() {
 		query.Arity = arity
 		return nil
 	})
-	var depth = flag.Int("depth", -1, "maximum depth of call stack (less than 0 means infinity)")
-	var jsonOutput = flag.Bool("json", false, "JSON output")
-	var graphvizOutput = flag.Bool("dot", false, "Graphviz output")
-	var jsonPathLikeOutput = flag.Bool("jsonpath", false, "JSON path-like output")
-	var help = flag.Bool("h", false, "show help")
+	depth := flag.Int("depth", -1, "maximum depth of call stack (less than 0 means infinity)")
+	jsonOutput := flag.Bool("json", false, "JSON output")
+	graphvizOutput := flag.Bool("dot", false, "Graphviz output")
+	jsonPathLikeOutput := flag.Bool("jsonpath", false, "JSON path-like output")
+	help := flag.Bool("h", false, "show help")
 	flag.BoolVar(help, "help", false, "show help")
 
 	flag.Parse()
@@ -97,7 +97,6 @@ func main() {
 			t.Render("")
 		}
 	}
-
 }
 
 func callStackPaths(t *CallTree) []string {
@@ -221,7 +220,6 @@ func getNestedRules(body ast.Body) []RuleKey {
 				log.Printf("WARNING: ignoring  with Terms == %T", expr.Terms)
 			}
 		}
-
 	}
 	return out
 }

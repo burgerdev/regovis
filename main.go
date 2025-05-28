@@ -35,6 +35,7 @@ func main() {
 	var depth = flag.Int("depth", -1, "maximum depth of call stack (less than 0 means infinity)")
 	var jsonOutput = flag.Bool("json", false, "JSON output")
 	var graphvizOutput = flag.Bool("dot", false, "Graphviz output")
+	var jsonPathLikeOutput = flag.Bool("jsonpath", false, "JSON path-like output")
 	var help = flag.Bool("h", false, "show help")
 	flag.BoolVar(help, "help", false, "show help")
 
@@ -84,12 +85,33 @@ func main() {
 			})
 		}
 		fmt.Println(g.String())
+	case *jsonPathLikeOutput:
+		for _, t := range ts {
+			paths := callStackPaths(t)
+			for _, path := range paths {
+				fmt.Println(path)
+			}
+		}
 	default:
 		for _, t := range ts {
 			t.Render("")
 		}
 	}
 
+}
+
+func callStackPaths(t *CallTree) []string {
+	if len(t.Calls) == 0 {
+		return []string{t.String()}
+	}
+	var out []string
+	for _, subt := range t.Calls {
+		out = append(out, callStackPaths(subt)...)
+	}
+	for i := range out {
+		out[i] = t.String() + "." + out[i]
+	}
+	return out
 }
 
 // RuleKey is the unique identifier for a rule (I hope).
